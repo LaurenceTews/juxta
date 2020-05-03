@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  myapp-mysql:
+    image: mysql:5.7
+    container_name: myapp-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_DATABASE=docker_db_test
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=test
+    ports:
+      - 3307:3306
+  myapp-main:
+    build:
+      context: ./../../
+      dockerfile: ./docker/release/app/Dockerfile
+    restart: on-failure
+    depends_on:
+      - myapp-mysql
+    ports:
+      - 8080:8080
+    environment:
+      - DATABASE_HOST=myapp-mysql
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=test
+      - DATABASE_NAME=docker_db_test
+      - DATABASE_PORT=3306
+      - SPRING_DATASOURCE_URL=jdbc:mysql://myapp-mysql:3306/docker_db_test?autoReconnect=true&useSSL=false
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=update
